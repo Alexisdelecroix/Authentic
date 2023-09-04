@@ -1,8 +1,7 @@
 # Projet d'Authentification Sécurisée
 
 
-
-# Contexte du projet!
+## Contexte du projet!
 
 
 Dans le cadre de ce projet, nous avons pour mission de créer une API d'authentification sécurisée visant à permettre aux administrateurs de s'inscrire et de se connecter de manière fiable et sécurisée. 
@@ -24,25 +23,4 @@ Le système vérifiera la correspondance entre le mot de passe fourni et le hach
 
 Les routes sensibles de l'API seront protégées grâce à l'utilisation de tokens JWT. Lorsqu'un administrateur tente d'accéder à ces routes, le système vérifiera la validité du jeton JWT inclus dans l'en-tête de la requête. 
 Cela garantira que seuls les administrateurs authentifiés et disposant d'un jeton valide peuvent accéder à ces zones protégées.
-
-## Modalités pédagogiques
-
-Activité individuelle 
-
-## Deadline
-
- 07/09/2023 tic, tiac, tic, tac
-
-## Ressources
-- <a href="https://git-scm.com/downloads](https://www.wawasensei.dev/tuto/tuto-authentification-refresh-json-web-token-en-nodejs-avec-express" target="_blanc">JsonWebToken</a>
-- <a href="https://www.docker.com/get-started](https://blog.ineat-group.com/2019/11/creer-une-api-node-js-et-la-securiser-avec-keycloak" target="_blanc">Créer une API sécurisé</a>
-
-
-- Vous avez également un fichier de lancement de serveur que nous avons créer ensemble
-
-## Modalités d'évaluation
-
-Démonstration en direct et test avec votre client REST 
-
-## Livrables
 
