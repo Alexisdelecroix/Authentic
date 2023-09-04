@@ -30,7 +30,7 @@ app.use(cors({
 
 app.use(cookieParser())
 
-// Vérification de mon localHost en affichant le messahe Hello World
+// Vérification de mon localHost en affichant le message Hello World
 // app.get('/', (req,res) => {
 //     res.send('Hello World')
 // });

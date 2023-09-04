@@ -11,19 +11,21 @@ const conn = mysql.createConnection({
 })
 
 const emailEnv = process.env.mailAdmin;
+const KEY = process.env.keyHash
 
 const register = async (req, res) => {
 
     const { email, password } = req.body
 
+
     console.log('Données reçues :', req.body);
 
-    if (!email || !password) {
-        return res.status(400).json({
-            error: 'Données incorrect'
-        })
-        return;
-    }
+    // if (!email || !password) {
+    //     return res.status(400).json({
+    //         error: 'Données incorrect'
+    //     })
+    //     return;
+    // }
 
     if (email != emailEnv) {
         return res.status(401).json({
@@ -31,6 +33,7 @@ const register = async (req, res) => {
         })
         return;
     }
+
 
     // Fonction pour vérifier si un mot de passe est fort
     function isStrongPassword(password) {
@@ -88,24 +91,93 @@ const register = async (req, res) => {
     })
 }
 
-const login = (req, res) => {
 
-    const { email, password } = req.body
 
-    if (email != emailEnv) {
-        return res.status(401).json({
-            error: 'L\email n\est pas autoriser !'
-        })
-        return;
+const login = async (req, res) => {
+
+    const { email, password } = req.body;
+
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email et mot de passe sont requis' });
     }
 
-    if (password) {
+    // Préparation de la requête SQL pour récupérer l'utilisateur par son email
+    const query = 'SELECT * FROM admin WHERE email = ?';
 
-    }
+    // Exécuter la requête SQL
+    conn.query(query, [email], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
 
+        // Vérifier si un utilisateur correspondant à l'email
+        if (results.length === 0) {
+            return res.status(401).json({ error: 'Utilisateur non trouvé' });
+        }
+
+        // Extraire le premier utilisateur trouvé (s'il y en a plusieurs)
+        const admin = results[0];
+
+        // Comparer le mot de passe fourni avec le mot de passe haché de l'administrateur
+        bcrypt.compare(password, admin.password, (bcryptErr, result) => {
+            if (bcryptErr) {
+                return res.status(500).json({ error: 'Erreur de comparaison de mot de passe' });
+            }
+
+            if (!result) {
+                return res.status(401).json({ error: 'Mot de passe incorrect' });
+            }
+
+            // Signer le token JWT avec l'email autorisé et la clé secrète
+            jwt.sign({ payload: { email: emailEnv } }, KEY, { expiresIn: '1h' }, (jwtErr, token) => {
+                if (jwtErr) {
+                    return res.status(500).json({ error: 'Erreur de génération du token JWT' });
+                }
+                // Renvoyer le token JWT dans la réponse
+                res.status(200).json({ token });
+            });
+        });
+    });
 }
+
+const extractBearer = authorization => {
+    if (typeof authorization !== 'string') {
+        return null;
+    } 
+    const matches = authorization.match(/(bearer)\s+(\S+)/i);
+
+    return matches ? matches[2] : null;
+};
+
+const dashboard = (req, res) => {
+    const token = req.headers.authorization && extractBearer(req.headers.authorization);
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token introuvable' });
+    }
+
+    jwt.verify(token, KEY, (err, decodedToken) => {
+        if (err) {
+            return res.status(401).json({ message: 'Mauvais token' });
+        }
+
+        req.decodedToken = decodedToken;
+
+        console.log(decodedToken);
+
+        console.log('Accès autorisé'); 
+        return res.status(200).json({ message: 'Accès autorisé' });
+
+
+    });
+};
+
+
 
 //Routes
 module.exports = {
     register,
+    login,
+    dashboard
 }
